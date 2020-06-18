@@ -19,16 +19,15 @@ function viewBoard(matrix, size) {
   const lastLine = size - 1;
   // devo passar o size pra garantir ou eu pego o size da matrix?
   printHeader(size);
-  for (let line = 0; line < size; line += 1) {
-    printLine(matrix, line, size, 'x', 'y');
-    if (line !== lastLine) {
+  for (let lineIndex = 0; lineIndex < size; lineIndex += 1) {
+    printLine(matrix, lineIndex, size, 'x', 'y');
+    if (lineIndex !== lastLine) {
       printIntermediateLine(size);
     }
   }
 }
 
 function printHeader(size) {
-  // pensei em chamar de printFirstLine antes
   process.stdout.write(`${' '} `);
   for (let i = 0; i < size; i += 1) {
     process.stdout.write(`${i} `);
@@ -36,15 +35,26 @@ function printHeader(size) {
   console.log('');
 }
 
-function printLine(matrix, line, size, firstPlayerSymbol, secondPlayerSymbol) {
+// trocar os if else if por um função print symbol
+// trocar size por matrixSize
+// trocar line por lineIndex
+// trocar o matrix[line]
+
+function printLine(
+  matrix,
+  lineIndex,
+  size,
+  firstPlayerSymbol,
+  secondPlayerSymbol,
+) {
   const lastColumn = size - 1;
-  process.stdout.write(`${line} `);
+  process.stdout.write(`${lineIndex} `);
   for (let column = 0; column < size; column += 1) {
-    if (matrix[line][column] === 'Blank') {
+    if (matrix[lineIndex][column] === 'Blank') {
       process.stdout.write(`${''} `);
-    } else if (matrix[line][column] === 'First Player') {
+    } else if (matrix[lineIndex][column] === 'First Player') {
       process.stdout.write(`${firstPlayerSymbol} `);
-    } else if (matrix[line][column] === 'Second Player') {
+    } else if (matrix[lineIndex][column] === 'Second Player') {
       process.stdout.write(`${secondPlayerSymbol} `);
     }
     if (column !== lastColumn) {
@@ -65,3 +75,24 @@ function printIntermediateLine(size) {
   }
   console.log('');
 }
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+rl.question('What is your name ? ', function(name) {
+  rl.question('Where do you live ? ', function(country) {
+    console.log(`${name}, is a citizen of ${country}`);
+    rl.close();
+  });
+});
+
+rl.on('close', function() {
+  console.log('\nBYE BYE !!!');
+  process.exit(0);
+});
+
+const matrix = createMatrix(3);
+viewBoard(matrix, 3);
