@@ -3,10 +3,8 @@ const prompt = require('prompt-sync')();
 
 // ideia: matrix vira um objeto com a matrix e com o size
 // limpar o codigo agra, deixar as coisas mais concisas, pensando nos proximos 3 passos:
-// vitoria, prever o movimento pra vitoria, menu de jogo q escolhe o simbolo
+// vitoria, prever o movimento pra vitoria
 // qm sabe dividir em mais .js
-
-// como quero averiguar minhas ideias pra limpar o codigo, e nao to afim de implementar o vitoria (parece meio complicado) implementei o resto
 
 function runGame(matrixSize, firstPlayerSymbol, secondPlayerSymbol) {
   const turn = {
