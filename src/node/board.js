@@ -3,10 +3,13 @@ module.exports = {
   viewBoard,
 };
 
+// agora que eu descobri a maravilha que é colocar tudo em objetos pra organizar, to pensando em por exemplo, criar o objeto playerSymbols.first e second
+// é uma boa? pro matrix tbm
+
 function createMatrix(size) {
   const matrix = [];
-  const line = [];
   for (let i = 0; i < size; i += 1) {
+    const line = [];
     for (let j = 0; j < size; j += 1) {
       line.push('Blank');
     }
@@ -15,11 +18,17 @@ function createMatrix(size) {
   return matrix;
 }
 
-function viewBoard(matrix, matrixSize) {
+function viewBoard(matrix, matrixSize, firstPlayerSymbol, secondPlayerSymbol) {
   const lastLine = matrixSize - 1;
   printHeader(matrixSize);
   for (let lineIndex = 0; lineIndex < matrixSize; lineIndex += 1) {
-    printLine(matrix[lineIndex], lineIndex, matrixSize, 'x', 'y');
+    printLine(
+      matrix[lineIndex],
+      lineIndex,
+      matrixSize,
+      firstPlayerSymbol,
+      secondPlayerSymbol,
+    );
     if (lineIndex !== lastLine) {
       printIntermediateLine(matrixSize);
     }
@@ -56,10 +65,10 @@ function printLine(
 function printSymbol(symbol, firstPlayerSymbol, secondPlayerSymbol) {
   if (symbol === 'Blank') {
     process.stdout.write(`${''} `);
-  } else if (symbol === 'First Player') {
-    process.stdout.write(`${firstPlayerSymbol} `);
-  } else if (symbol === 'Second Player') {
-    process.stdout.write(`${secondPlayerSymbol} `);
+  } else if (symbol === firstPlayerSymbol) {
+    process.stdout.write(`${firstPlayerSymbol}`);
+  } else if (symbol === secondPlayerSymbol) {
+    process.stdout.write(`${secondPlayerSymbol}`);
   }
 }
 
@@ -74,25 +83,3 @@ function printIntermediateLine(size) {
   }
   console.log('');
 }
-
-const matrix = createMatrix(3);
-viewBoard(matrix, 3);
-
-const readline = require('readline');
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-rl.question('What is your name ? ', function(name) {
-  rl.question('Where do you live ? ', function(country) {
-    console.log(`${name}, is a citizen of ${country}`);
-    rl.close();
-  });
-});
-
-rl.on('close', function() {
-  console.log('\nBYE BYE !!!');
-  process.exit(0);
-});
