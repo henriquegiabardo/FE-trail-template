@@ -1,10 +1,7 @@
 module.exports = {
   createMatrix,
-  viewBoard,
+  printBoard,
 };
-
-// agora que eu descobri a maravilha que é colocar tudo em objetos pra organizar, to pensando em por exemplo, criar o objeto playerSymbols.first e second
-// é uma boa? pro matrix tbm
 
 function createMatrix(size) {
   const matrix = [];
@@ -18,17 +15,12 @@ function createMatrix(size) {
   return matrix;
 }
 
-function viewBoard(matrix, matrixSize, firstPlayerSymbol, secondPlayerSymbol) {
+function printBoard(matrix, playerSymbols) {
+  const matrixSize = matrix.length;
   const lastLine = matrixSize - 1;
   printHeader(matrixSize);
   for (let lineIndex = 0; lineIndex < matrixSize; lineIndex += 1) {
-    printLine(
-      matrix[lineIndex],
-      lineIndex,
-      matrixSize,
-      firstPlayerSymbol,
-      secondPlayerSymbol,
-    );
+    printLine(matrix[lineIndex], lineIndex, playerSymbols);
     if (lineIndex !== lastLine) {
       printIntermediateLine(matrixSize);
     }
@@ -36,50 +28,58 @@ function viewBoard(matrix, matrixSize, firstPlayerSymbol, secondPlayerSymbol) {
 }
 
 function printHeader(size) {
-  process.stdout.write(`${' '} `);
+  const headerLine = ['  '];
   for (let i = 0; i < size; i += 1) {
-    process.stdout.write(`${i} `);
+    headerLine.push(i, ' ');
   }
-  console.log('');
+  headerLine.push(' ');
+  transformArrayIntoStringAndPrint(headerLine);
 }
 
-function printLine(
-  line,
-  lineIndex,
-  matrixSize,
-  firstPlayerSymbol,
-  secondPlayerSymbol,
-) {
-  const lastColumn = matrixSize - 1;
-  process.stdout.write(`${lineIndex} `);
-  for (let column = 0; column < matrixSize; column += 1) {
+function transformArrayIntoStringAndPrint(array) {
+  let string = '';
+  array.forEach(function(element) {
+    string += element;
+  });
+  console.log(string);
+}
+
+function printLine(line, lineIndex, playerSymbols) {
+  const lastColumn = line.length - 1;
+  const lineWithSymbols = [lineIndex, ' '];
+
+  for (let column = 0; column < line.length; column += 1) {
+    // aprender a usar for each depois
     const symbol = line[column];
-    printSymbol(symbol, firstPlayerSymbol, secondPlayerSymbol);
+    lineWithSymbols.push(getSymbol(symbol, playerSymbols), '');
     if (column !== lastColumn) {
-      process.stdout.write(`${'|'}`);
+      lineWithSymbols.push('|');
     }
   }
-  console.log('');
+  transformArrayIntoStringAndPrint(lineWithSymbols);
 }
 
-function printSymbol(symbol, firstPlayerSymbol, secondPlayerSymbol) {
+function getSymbol(symbol, playerSymbols) {
   if (symbol === 'Blank') {
-    process.stdout.write(`${''} `);
-  } else if (symbol === firstPlayerSymbol) {
-    process.stdout.write(`${firstPlayerSymbol}`);
-  } else if (symbol === secondPlayerSymbol) {
-    process.stdout.write(`${secondPlayerSymbol}`);
+    return ' ';
+  }
+  if (symbol === playerSymbols.first) {
+    return playerSymbols.first;
+  }
+  if (symbol === playerSymbols.second) {
+    return playerSymbols.second;
   }
 }
 
 function printIntermediateLine(size) {
   const lastColumn = size - 1;
-  process.stdout.write(`${' '} `);
+  const intermediatedLine = ['  '];
+
   for (let column = 0; column < size; column += 1) {
-    process.stdout.write(`${'-'}`);
+    intermediatedLine.push('-');
     if (column !== lastColumn) {
-      process.stdout.write(`${'|'}`);
+      intermediatedLine.push('|');
     }
   }
-  console.log('');
+  transformArrayIntoStringAndPrint(intermediatedLine);
 }

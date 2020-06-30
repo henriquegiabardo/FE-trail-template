@@ -1,41 +1,43 @@
-const board = require('./board');
 const prompt = require('prompt-sync')();
+const board = require('./board');
 
-// ideia: matrix vira um objeto com a matrix e com o size
-// limpar o codigo agra, deixar as coisas mais concisas, pensando nos proximos 3 passos:
-// vitoria, prever o movimento pra vitoria
-// qm sabe dividir em mais .js
+module.exports = {
+  runGame,
+};
 
-function runGame(matrixSize, firstPlayerSymbol, secondPlayerSymbol) {
-  const turn = {
+function runGame(matrixSize, playerSymbols) {
+  const turns = {
     actual: 0,
     final: matrixSize * matrixSize,
   };
+  const gameIs = {
+    finished: false,
+  };
   let matrix = board.createMatrix(matrixSize);
-  board.viewBoard(matrix, matrixSize), firstPlayerSymbol, secondPlayerSymbol;
-  let gameIsFinished = false;
-  while (!gameIsFinished) {
-    matrix = playerMove(firstPlayerSymbol, matrix, matrixSize);
-    board.viewBoard(matrix, matrixSize, firstPlayerSymbol, secondPlayerSymbol);
-    turn.actual += 1;
-    if (verifyIfGameIsFinished(turn, matrix)) {
-      return true;
-    }
-    matrix = playerMove(secondPlayerSymbol, matrix, matrixSize);
-    board.viewBoard(matrix, matrixSize, firstPlayerSymbol, secondPlayerSymbol);
-    turn.actual += 1;
-    gameIsFinished = verifyIfGameIsFinished(turn, matrix);
+  board.printBoard(matrix, playerSymbols);
+
+  while (!gameIs.finished) {
+    matrix = runTurn(turns, playerSymbols.first, matrix, gameIs);
+    board.printBoard(matrix, playerSymbols);
+    matrix = runTurn(turns, playerSymbols.second, matrix, gameIs);
+    board.printBoard(matrix, playerSymbols);
   }
 }
 
-function playerMove(playerSymbol, matrix, matrixSize) {
-  const coordinates = askMovement(playerSymbol, matrix, matrixSize);
-  const updatedMatrix = putPiece(playerSymbol, coordinates, matrix, matrixSize);
-
+function runTurn(turns, player, matrix, gameIs) {
+  const updatedMatrix = playerMove(player, matrix);
+  turns.actual += 1;
+  gameIs.finished = verifyIfGameIsFinished(turns, matrix);
   return updatedMatrix;
 }
 
-function askMovement(playerSymbol, matrix, matrixSize) {
+function playerMove(playerSymbol, matrix) {
+  const coordinates = askMovement(playerSymbol, matrix);
+  const updatedMatrix = putPiece(playerSymbol, coordinates, matrix);
+  return updatedMatrix;
+}
+
+function askMovement(playerSymbol, matrix) {
   let validMove = false;
   const chosenCoordinates = {
     line: null,
@@ -47,19 +49,18 @@ function askMovement(playerSymbol, matrix, matrixSize) {
     chosenCoordinates.line = prompt();
     console.log('Qual a coluna?');
     chosenCoordinates.column = prompt();
-
     console.log(
       `Linha: ${chosenCoordinates.line}, Coluna: ${chosenCoordinates.column}`,
     );
-
-    if (itsValidSpace(chosenCoordinates, matrixSize, matrix)) {
+    if (itsValidSpace(chosenCoordinates, matrix)) {
       validMove = true;
       return chosenCoordinates;
     }
   }
 }
 
-function itsValidSpace(chosenCoordinates, matrixSize, matrix) {
+function itsValidSpace(chosenCoordinates, matrix) {
+  const matrixSize = matrix.length;
   if (
     itsInsideTheBoard(chosenCoordinates, matrixSize) &&
     itsBlankSpace(chosenCoordinates, matrix)
@@ -87,12 +88,13 @@ function itsValueIsBetweenZeroAndBoardSize(value, boardSize) {
 
 function itsBlankSpace(chosenCoordinates, matrix) {
   if (matrix[chosenCoordinates.line][chosenCoordinates.column] === 'Blank') {
+    // bug se eu coloco 00 ou 01 por exemplo
     return true;
   }
   console.log('Espaço não está vazio');
   return false;
 }
-function putPiece(playerSymbol, coordinates, matrix, matrixSize) {
+function putPiece(playerSymbol, coordinates, matrix) {
   const updatedMatrix = matrix;
   updatedMatrix[coordinates.line][coordinates.column] = playerSymbol;
   return updatedMatrix;
@@ -112,49 +114,4 @@ function itsAnAce(turn) {
 
 function itsAVictory(matrix) {
   return false;
-}
-
-function showInitialOptions() {
-  console.log('1) Iniciar o jogo');
-  console.log('2) Customizar peças');
-  const answer = prompt();
-  if (answer === '1') {
-    return 'startGame';
-  }
-  if (answer === '2') {
-    return 'customPieces';
-  }
-}
-
-function customPieces(pieces) {
-  const updatedPieces = pieces;
-  console.log('Quem começa jogando?');
-  updatedPieces.firstPlayerSymbol = prompt();
-  console.log('e seu adversario?');
-  updatedPieces.secondPlayerSymbol = prompt();
-  return updatedPieces;
-}
-let wantsToPlay = true;
-let pieces = {
-  firstPlayerSymbol: 'x',
-  secondPlayerSymbol: 'y',
-};
-// talvez jogar esse fluxo para um menu.js
-while (wantsToPlay) {
-  const matrixSize = 2;
-
-  console.log('Bem vindo ao jogo da velha!\nEscolha uma opção:');
-  const choice = showInitialOptions();
-  if (choice === 'customPieces') {
-    pieces = customPieces(pieces);
-  }
-  runGame(matrixSize, pieces.firstPlayerSymbol, pieces.secondPlayerSymbol);
-  console.log('Desje jogar novamente? (Sim/Nao)');
-  const answer = prompt();
-  if (answer === 'Sim') {
-    console.log('\n');
-  } else if (answer === 'Nao') {
-    wantsToPlay = false;
-    console.log('\n');
-  }
 }
