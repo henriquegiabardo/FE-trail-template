@@ -1,14 +1,11 @@
-module.exports = {
-  createMatrix,
-  printBoard,
-};
+const CONSTANTS = require('./constants.js');
 
 function createMatrix(size) {
   const matrix = [];
   for (let i = 0; i < size; i += 1) {
     const line = [];
     for (let j = 0; j < size; j += 1) {
-      line.push('Blank');
+      line.push(CONSTANTS.BLANK);
     }
     matrix.push(line);
   }
@@ -60,7 +57,7 @@ function printLine(line, lineIndex, playerSymbols) {
 }
 
 function getSymbol(symbol, playerSymbols) {
-  if (symbol === 'Blank') {
+  if (symbol === CONSTANTS.BLANK) {
     return ' ';
   }
   if (symbol === playerSymbols.first) {
@@ -83,3 +80,9 @@ function printIntermediateLine(size) {
   }
   transformArrayIntoStringAndPrint(intermediatedLine);
 }
+
+module.exports = {
+  createMatrix,
+  printBoard,
+  transformArrayIntoStringAndPrint,
+};

@@ -1,15 +1,16 @@
 const game = require('./game');
 const prompt = require('prompt-sync')();
+const CONSTANTS = require('./constants.js');
 
 function showInitialOptions() {
   console.log('1) Iniciar o jogo');
   console.log('2) Customizar peças');
   const answer = prompt();
   if (answer === '1') {
-    return 1; // 'startGame'
+    return CONSTANTS.START_GAME; // 'startGame'
   }
   if (answer === '2') {
-    return 2; // 'customPieces'
+    return CONSTANTS.CUSTOM_PIECES; // 'customPieces'
   }
 }
 
@@ -24,22 +25,20 @@ function customPieces(playerSymbols) {
 
 function runMenu() {
   let wantsToPlay = true;
-  const matrixSize = 2;
+  const matrixSize = 3;
   let playerSymbols = {
     first: 'x',
     second: 'y',
   };
-  const startGame = 1;
-  const customizePieces = 2;
 
   console.log('Bem vindo ao jogo da velha!\n');
   while (wantsToPlay) {
     console.log('Escolha uma opção:');
     const choice = showInitialOptions();
-    if (choice === customizePieces) {
+    if (choice === CONSTANTS.CUSTOM_PIECES) {
       playerSymbols = customPieces(playerSymbols);
     }
-    if (choice === startGame) {
+    if (choice === CONSTANTS.START_GAME) {
       game.runGame(matrixSize, playerSymbols);
       console.log('Deseja jogar novamente? (Sim/Nao)');
       const answer = prompt();
