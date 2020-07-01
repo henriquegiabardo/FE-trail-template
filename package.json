@@ -19,5 +19,8 @@
   "homepage": "https://github.com/QultureRocks/FE-trail-template#readme",
   "devDependencies": {
     "@qulture/eslint-config-base": "^0.0.2"
+  },
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
   }
 }
