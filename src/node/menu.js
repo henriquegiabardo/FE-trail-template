@@ -7,10 +7,10 @@ function showInitialOptions() {
   console.log('2) Customizar peças');
   const answer = prompt();
   if (answer === '1') {
-    return CONSTANTS.START_GAME; // 'startGame'
+    return CONSTANTS.START_GAME;
   }
   if (answer === '2') {
-    return CONSTANTS.CUSTOM_PIECES; // 'customPieces'
+    return CONSTANTS.CUSTOM_PIECES;
   }
 }
 

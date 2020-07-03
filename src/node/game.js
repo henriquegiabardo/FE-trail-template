@@ -2,37 +2,31 @@ const prompt = require('prompt-sync')();
 const board = require('./board');
 const CONSTANTS = require('./constants.js');
 
+let isGameFinished;
 function runGame(matrixSize, playerSymbols) {
+  isGameFinished = false;
   const turns = {
     actual: 0,
     final: matrixSize * matrixSize,
   };
-  const gameIs = {
-    finished: false,
-  };
+
   let matrix = board.createMatrix(matrixSize);
   board.printBoard(matrix, playerSymbols);
 
-  while (!gameIs.finished) {
-    matrix = runTurn(turns, playerSymbols.first, matrix, gameIs, playerSymbols);
-    if (gameIs.finished) {
+  while (!isGameFinished) {
+    matrix = runTurn(turns, playerSymbols.first, matrix, playerSymbols);
+    if (isGameFinished) {
       return true; // usei só pra sair
     }
-    matrix = runTurn(
-      turns,
-      playerSymbols.second,
-      matrix,
-      gameIs,
-      playerSymbols,
-    );
+    matrix = runTurn(turns, playerSymbols.second, matrix, playerSymbols);
   }
 }
 
-function runTurn(turns, player, matrix, gameIs, playerSymbols) {
+function runTurn(turns, player, matrix, playerSymbols) {
   const updatedMatrix = playerMove(player, matrix);
   turns.actual += 1;
   board.printBoard(matrix, playerSymbols);
-  gameIs.finished = verifyIfGameIsFinished(turns, matrix, player);
+  isGameFinished = verifyIfGameIsFinished(turns, matrix, player);
   return updatedMatrix;
 }
 
@@ -141,44 +135,6 @@ function itsAVictory(matrix, symbol) {
   return verifyIfAtLeastOneDiagonalIsFullOfTheSameSymbol(matrix, symbol);
 }
 
-function verifyIfAtLeastOneDiagonalIsFullOfTheSameSymbol(matrix, symbol) {
-  const diagonalSize = matrix.length;
-  if (
-    diagonalSize === getNumberofThisSymbolInMainDiagonal(matrix, symbol) ||
-    diagonalSize === getNumberofThisSymbolInReverseDiagonal(matrix, symbol)
-  ) {
-    printWinnerMessage(symbol);
-    return true;
-  }
-  return false;
-}
-
-function getNumberofThisSymbolInMainDiagonal(matrix, symbol) {
-  let occurrenccesOfThisSymbol = 0;
-  const matrixSize = matrix.length;
-  for (let i = 0; i < matrixSize; i += 1) {
-    if (matrix[i][i] === symbol) {
-      occurrenccesOfThisSymbol += 1;
-    }
-  }
-  return occurrenccesOfThisSymbol;
-}
-
-function getNumberofThisSymbolInReverseDiagonal(matrix, symbol) {
-  let occurrenccesOfThisSymbol = 0;
-  const matrixSize = matrix.length;
-  for (
-    let line = 0, column = matrixSize - 1;
-    line < matrixSize;
-    line += 1, column -= 1
-  ) {
-    if (matrix[line][column] === symbol) {
-      occurrenccesOfThisSymbol += 1;
-    }
-  }
-  return occurrenccesOfThisSymbol;
-}
-
 function verifyIfLineIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
   line,
   symbol,
@@ -190,7 +146,6 @@ function verifyIfLineIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
   }
   return false;
 }
-
 function verifyIfColumnIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
   matrix,
   column,
@@ -199,6 +154,17 @@ function verifyIfColumnIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
   const columnSize = matrix.length;
   if (
     columnSize === getNumberOfThisSymbolInThisColumn(matrix, column, symbol)
+  ) {
+    printWinnerMessage(symbol);
+    return true;
+  }
+  return false;
+}
+function verifyIfAtLeastOneDiagonalIsFullOfTheSameSymbol(matrix, symbol) {
+  const diagonalSize = matrix.length;
+  if (
+    diagonalSize === getNumberofThisSymbolInMainDiagonal(matrix, symbol) ||
+    diagonalSize === getNumberofThisSymbolInReverseDiagonal(matrix, symbol)
   ) {
     printWinnerMessage(symbol);
     return true;
@@ -216,12 +182,35 @@ function getNumberOfThisSymbolInThisLine(line, symbol) {
   }
   return occurrenccesOfThisSymbol;
 }
-
 function getNumberOfThisSymbolInThisColumn(matrix, column, symbol) {
   let occurrenccesOfThisSymbol = 0;
   const columnSize = matrix.length;
   for (let i = 0; i < columnSize; i += 1) {
     if (matrix[i][column] === symbol) {
+      occurrenccesOfThisSymbol += 1;
+    }
+  }
+  return occurrenccesOfThisSymbol;
+}
+function getNumberofThisSymbolInMainDiagonal(matrix, symbol) {
+  let occurrenccesOfThisSymbol = 0;
+  const matrixSize = matrix.length;
+  for (let i = 0; i < matrixSize; i += 1) {
+    if (matrix[i][i] === symbol) {
+      occurrenccesOfThisSymbol += 1;
+    }
+  }
+  return occurrenccesOfThisSymbol;
+}
+function getNumberofThisSymbolInReverseDiagonal(matrix, symbol) {
+  let occurrenccesOfThisSymbol = 0;
+  const matrixSize = matrix.length;
+  for (
+    let line = 0, column = matrixSize - 1;
+    line < matrixSize;
+    line += 1, column -= 1
+  ) {
+    if (matrix[line][column] === symbol) {
       occurrenccesOfThisSymbol += 1;
     }
   }
@@ -286,18 +275,18 @@ function theColumnIsWinnable(matrix, column, symbol) {
   );
 }
 function theMainDiagonalIsWinnable(matrix, symbol) {
-  // provavelmente tem um bug aqui
   const diagonalSize = matrix.length;
   return (
-    getNumberofThisSymbolInMainDiagonal(symbol) === diagonalSize - 1 &&
-    getNumberofThisSymbolInMainDiagonal(CONSTANTS.BLANK) === 1
+    getNumberofThisSymbolInMainDiagonal(matrix, symbol) === diagonalSize - 1 &&
+    getNumberofThisSymbolInMainDiagonal(matrix, CONSTANTS.BLANK) === 1
   );
 }
 function theReverseDiagonalIsWinnable(matrix, symbol) {
   const diagonalSize = matrix.length;
   return (
-    getNumberofThisSymbolInReverseDiagonal(symbol) === diagonalSize - 1 &&
-    getNumberofThisSymbolInReverseDiagonal(CONSTANTS.BLANK) === 1
+    getNumberofThisSymbolInReverseDiagonal(matrix, symbol) ===
+      diagonalSize - 1 &&
+    getNumberofThisSymbolInReverseDiagonal(matrix, CONSTANTS.BLANK) === 1
   );
 }
 
