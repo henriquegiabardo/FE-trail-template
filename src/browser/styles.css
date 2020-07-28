@@ -1,0 +1,142 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html{
+  height: 100%;
+}
+
+body {
+  text-align: center;
+  background-color: #C0C0C0	;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  display: flex;
+}
+
+.board{
+  background-color:  #DCDCDC;
+  box-sizing: border-box; 
+  border-style: none;
+  width: 800px;
+  height: 800px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  white-space: pre-wrap
+}
+
+.line{
+  display: flex;
+  justify-content: center;
+  height:calc(100%/3);
+  width: 100%;
+}
+
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid black;
+  box-sizing: border-box; 
+  width: calc(100%/3);
+
+}
+
+.winningBar {
+  width: 800px; 
+  position: absolute; 
+  border: 5px solid red;
+  justify-content: flex-start; 
+  border-radius: 6px;
+}
+
+.firstPlayerWinningBar{
+  border-color: green;
+}
+
+.secondPlayerWinningBar{
+  border-color: purple;
+}
+
+.firstLine{
+  top: calc(100%/4.6);
+}
+
+.thirLine{
+  bottom: calc(100%/4.6);
+}
+
+.verticalBar{
+  -webkit-transform:rotate(90deg);
+}
+
+.firstColumn{
+  right: calc(100%/2.5)
+}
+
+.thirdColumn{
+  left: calc(100%/2.5);
+}
+
+.reverseDiagonalBar{
+  -webkit-transform:rotate(135deg);
+}
+
+.mainDiagonalBar{
+  -webkit-transform:rotate(45deg);
+}
+
+.firstPlayerSymbol {
+  font-size: 50px;
+  color: green;
+}
+
+.secondPlayerSymbol {
+  font-size: 50px;
+  color: purple;
+}
+
+.borderUp {
+  border-top: none;
+}
+
+.borderBot {
+  border-bottom: none;
+}
+
+.borderLeft {
+  border-left: none;
+}
+
+.borderRight {
+  border-right: none;
+}
+
+.button{
+
+}
+
+.blankSpace{
+
+}
+
+.play-again{
+  color: #FFF;
+  background-color: #5995DA;
+  font-weight: bold;
+  padding: 20px;
+  text-align: center;
+  position: absolute; 
+
+  bottom: 0px;
+
+
+  border: 2px solid white;
+  border-radius: 5px;
+  width: 200px; 
+  box-sizing: border-box;
+}

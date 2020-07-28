@@ -1,6 +1,6 @@
-const CONSTANTS = require('./constants.js');
+import CONSTANTS from './constants.js';
 
-function createMatrix(size) {
+function createMatrix(size) { // basicamente tudo aqui é visualização menos esse create matrix. como deixar mais organizado?
   const matrix = [];
   for (let i = 0; i < size; i += 1) {
     const line = [];
@@ -13,6 +13,15 @@ function createMatrix(size) {
 }
 
 function printBoard(matrix, playerSymbols) {
+  printBoardOnBrowser();
+  printBoardOnConsole(matrix, playerSymbols);
+}
+
+function printBoardOnBrowser() {
+
+}
+
+function printBoardOnConsole(matrix, playerSymbols) {
   const matrixSize = matrix.length;
   const lastLine = matrixSize - 1;
   printHeader(matrixSize);
@@ -35,7 +44,7 @@ function printHeader(size) {
 
 function transformArrayIntoStringAndPrint(array) {
   let string = '';
-  array.forEach(function(element) {
+  array.forEach(function (element) {
     string += element;
   });
   console.log(string);
@@ -86,3 +95,6 @@ module.exports = {
   printBoard,
   transformArrayIntoStringAndPrint,
 };
+
+var x = window.document.getElementsByClassName('board');
+console.log(x);

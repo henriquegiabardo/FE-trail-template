@@ -1,6 +1,6 @@
-const prompt = require('prompt-sync')();
-const board = require('./board');
-const CONSTANTS = require('./constants.js');
+import board from './board.js';
+import CONSTANTS from './constants.js';
+
 
 let isGameFinished;
 function runGame(matrixSize, playerSymbols) {
@@ -10,8 +10,10 @@ function runGame(matrixSize, playerSymbols) {
     final: matrixSize * matrixSize,
   };
 
+  console.log('oi');
+
   let matrix = board.createMatrix(matrixSize);
-  board.printBoard(matrix, playerSymbols); // isso é view
+  board.printBoard(matrix, playerSymbols);
 
   while (!isGameFinished) {
     matrix = runTurn(turns, playerSymbols.first, matrix, playerSymbols);
@@ -30,13 +32,15 @@ function runTurn(turns, player, matrix, playerSymbols) {
   return updatedMatrix;
 }
 
+
 function playerMove(playerSymbol, matrix) {
-  const coordinates = askMovement(playerSymbol, matrix);
+  const coordinates = askMovementInConsole(playerSymbol, matrix);
+
   const updatedMatrix = putPiece(playerSymbol, coordinates, matrix);
   return updatedMatrix;
 }
 
-function askMovement(playerSymbol, matrix) {
+function askMovementInConsole(playerSymbol, matrix) {
   let validMove = false;
   const chosenCoordinates = {
     line: null,
@@ -46,9 +50,9 @@ function askMovement(playerSymbol, matrix) {
     console.log(`Vez de ${playerSymbol}. Qual sua jogada?`);
     tellPlayerWhatIsTheWinnerMove(matrix, playerSymbol);
     console.log('Qual a linha?');
-    chosenCoordinates.line = prompt();
+    chosenCoordinates.line = prompt('linha?');
     console.log('Qual a coluna?');
-    chosenCoordinates.column = prompt();
+    chosenCoordinates.column = prompt('coluna?');
     console.log(
       `Linha: ${chosenCoordinates.line}, Coluna: ${chosenCoordinates.column}`,
     );
@@ -103,8 +107,29 @@ function putPiece(playerSymbol, coordinates, matrix) {
   return updatedMatrix;
 }
 
-function verifyIfGameIsFinished(turn, matrix, symbol) {
-  return itsAnAce(turn) || itsAVictory(matrix, symbol);
+function verifyIfGameIsFinished(turns, matrix, symbol) {
+  if (itsAVictory(matrix, symbol)) {
+    colorWinningBar(turns.actual);
+    return true
+  }
+  else {
+    return itsAnAce(turns);
+  }
+}
+
+function colorWinningBar(turn) {
+  let winningBar = document.getElementById('winningBar');
+  console.log(winningBar);
+  console.log('turn:', turn);
+  console.log(turn % 2);
+  if (turn % 2 === 0) {
+    console.log('é par');
+    winningBar.classList.add('secondPlayerWinningBar');
+  }
+  else {
+    console.log('nao é par');
+    winningBar.classList.add('firstPlayerWinningBar');
+  }
 }
 
 function itsAnAce(turn) {
@@ -118,17 +143,26 @@ function itsAnAce(turn) {
 function itsAVictory(matrix, symbol) {
   const matrixSize = matrix.length;
   for (let i = 0; i < matrixSize; i += 1) {
-    if (
-      verifyIfLineIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
-        matrix[i],
-        symbol,
-      ) ||
-      verifyIfColumnIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
-        matrix,
-        i,
-        symbol,
-      )
-    ) {
+    if (verifyIfLineIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
+      matrix[i],
+      symbol,
+    )) {
+
+      if (i === 0) {
+        document.getElementById('winningBar').classList.add('firstLine');
+      }
+      else if (i === 2) {
+        document.getElementById('winningBar').classList.add('thirdLine');
+      }
+
+
+      return true;
+    }
+    else if (verifyIfColumnIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
+      matrix,
+      i,
+      symbol,
+    )) {
       return true;
     }
   }
@@ -141,7 +175,7 @@ function verifyIfLineIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
 ) {
   const lineSize = line.length;
   if (lineSize === getNumberOfThisSymbolInThisLine(line, symbol)) {
-    printWinnerMessage(symbol);
+    printWinnerMessageAndCreateTheWinnerBar(symbol);
     return true;
   }
   return false;
@@ -155,7 +189,17 @@ function verifyIfColumnIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
   if (
     columnSize === getNumberOfThisSymbolInThisColumn(matrix, column, symbol)
   ) {
-    printWinnerMessage(symbol);
+    printWinnerMessageAndCreateTheWinnerBar(symbol);
+    document.getElementById('winningBar').classList.add('verticalBar');
+
+
+    if (column === 0) {
+      document.getElementById('winningBar').classList.add('firstColumn');
+    }
+    else if (column === 2) {
+      document.getElementById('winningBar').classList.add('thirdColumn');
+    }
+
     return true;
   }
   return false;
@@ -163,10 +207,15 @@ function verifyIfColumnIsFullOfTheSameSymbolAndPrintMessageToTheWinner(
 function verifyIfAtLeastOneDiagonalIsFullOfTheSameSymbol(matrix, symbol) {
   const diagonalSize = matrix.length;
   if (
-    diagonalSize === getNumberofThisSymbolInMainDiagonal(matrix, symbol) ||
-    diagonalSize === getNumberofThisSymbolInReverseDiagonal(matrix, symbol)
+    diagonalSize === getNumberofThisSymbolInMainDiagonal(matrix, symbol)
   ) {
-    printWinnerMessage(symbol);
+    printWinnerMessageAndCreateTheWinnerBar(symbol);
+    document.getElementById('winningBar').classList.add('mainDiagonalBar');
+    return true;
+  }
+  else if (diagonalSize === getNumberofThisSymbolInReverseDiagonal(matrix, symbol)) {
+    printWinnerMessageAndCreateTheWinnerBar(symbol);
+    document.getElementById('winningBar').classList.add('reverseDiagonalBar');
     return true;
   }
   return false;
@@ -217,9 +266,12 @@ function getNumberofThisSymbolInReverseDiagonal(matrix, symbol) {
   return occurrenccesOfThisSymbol;
 }
 
-function printWinnerMessage(winnerSymbol) {
+function printWinnerMessageAndCreateTheWinnerBar(winnerSymbol) {
   console.log('\nVitória de', winnerSymbol, '! Parabéns!');
+  document.getElementById('winningBar').classList.add('winningBar');
 }
+
+
 
 function tellPlayerWhatIsTheWinnerMove(matrix, symbol) {
   const arrayOfStrings = ['Movimentos'];
@@ -327,6 +379,27 @@ function getBlankSpaceCoordinatesInTheReverseDiagonalAsString(matrix) {
   }
 }
 
-module.exports = {
+// testes abaixo pra nao usar o game.js
+
+// console.log('oi');
+
+// const matrix = board.createMatrix(3);
+// matrix[0][1] = 'x';
+// matrix[0][0] = 'x';
+// matrix[1][1] = 'y';
+// matrix[2][0] = 'y';
+// let playerSymbols = {
+//   first: 'x',
+//   second: 'y',
+// };
+// board.printBoard(matrix, playerSymbols);
+
+// const l = prompt();
+// const c = prompt();
+// matrix[l][c] = 'y';
+// board.printBoard(matrix, playerSymbols);
+
+export default {
   runGame,
-};
+  putPiece,
+}
