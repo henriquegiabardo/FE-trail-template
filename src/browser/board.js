@@ -63,23 +63,6 @@ function updateBoardOnBrowser(matrix, playerSymbols) {
   for (let lineIndex = 0; lineIndex < matrixSize; lineIndex += 1) {
     for (let columnIndex = 0; columnIndex < matrixSize; columnIndex += 1) {
       let cell = document.getElementById('cell' + ' ' + lineIndex + 'x' + columnIndex);
-
-
-
-      // Move to proper function
-      cell.addEventListener('click', function onClick() {
-        console.log(lineIndex, columnIndex)
-        // criei a celular agora vou colocar logic nela;
-
-        // clicou 
-        // coloque peça na matrix na ppsição clicada
-        // atualize oq estou vendo 
-        // avance turno 
-
-      })
-
-
-
       updateCellDiv(cell, playerSymbols, matrix[lineIndex][columnIndex]);
       updateCellAndLineSizes(matrix.length);
     }
@@ -91,7 +74,6 @@ function updateCellDiv(cell, playerSymbols, matrixSymbol) {
     cell.textContent = matrixSymbol;
     cell.classList.add('firstPlayerSymbol');
     cell.classList.remove('blankSpace');
-
   }
   else if (matrixSymbol === playerSymbols.second) {
     cell.textContent = matrixSymbol;
@@ -104,17 +86,13 @@ function updateCellAndLineSizes(size) {
   let lines = document.getElementsByClassName('line');
   let cells = document.getElementsByClassName('cell');
   let percentage = 100 / size;
-
   for (let i = 0; i < lines.length; i += 1) {
     lines[i].style.height = percentage + `%`;
   }
-
   for (let j = 0; j < cells.length; j += 1) {
     cells[j].style.width = percentage + `%`;
   }
 }
-
-
 
 function printBoardOnConsole(matrix, playerSymbols) {
   const matrixSize = matrix.length;

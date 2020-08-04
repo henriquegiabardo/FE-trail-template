@@ -1,107 +1,71 @@
 import board from './board.js';
 import CONSTANTS from './constants.js';
 
-
 let isGameFinished;
-function runGame(matrixSize, playerSymbols) {
+let matrix;
+
+function runGameOnBrowser(matrixSize, playerSymbols) {
+
+  matrix = board.createMatrix(matrixSize);
+  board.printBoard(matrix, playerSymbols);
   isGameFinished = false;
   const turns = {
     actual: 0,
     final: matrixSize * matrixSize,
   };
 
-  console.log('oi');
-
-  let matrix = board.createMatrix(matrixSize);
-  board.printBoard(matrix, playerSymbols);
-
-  while (!isGameFinished) {
-    matrix = runTurn(turns, playerSymbols.first, matrix, playerSymbols);
-    if (isGameFinished) {
-      return true;
-    }
-    matrix = runTurn(turns, playerSymbols.second, matrix, playerSymbols);
-  }
+  putClickersInBrowser(playerSymbols, turns);
 }
 
-function runTurn(turns, player, matrix, playerSymbols) {
-  const updatedMatrix = playerMove(player, matrix);
-  turns.actual += 1;
-  board.printBoard(matrix, playerSymbols);
-  isGameFinished = verifyIfGameIsFinished(turns, matrix, player);
-  return updatedMatrix;
-}
+function putClickersInBrowser(playerSymbols, turns) {
 
-
-function playerMove(playerSymbol, matrix) {
-  const coordinates = askMovementInConsole(playerSymbol, matrix);
-
-  const updatedMatrix = putPiece(playerSymbol, coordinates, matrix);
-  return updatedMatrix;
-}
-
-function askMovementInConsole(playerSymbol, matrix) {
-  let validMove = false;
-  const chosenCoordinates = {
-    line: null,
-    column: null,
-  };
-  while (!validMove) {
-    console.log(`Vez de ${playerSymbol}. Qual sua jogada?`);
-    tellPlayerWhatIsTheWinnerMove(matrix, playerSymbol);
-    console.log('Qual a linha?');
-    chosenCoordinates.line = prompt('linha?');
-    console.log('Qual a coluna?');
-    chosenCoordinates.column = prompt('coluna?');
-    console.log(
-      `Linha: ${chosenCoordinates.line}, Coluna: ${chosenCoordinates.column}`,
-    );
-    if (itsValidSpace(chosenCoordinates, matrix)) {
-      validMove = true;
-      return chosenCoordinates;
-    }
-  }
-}
-
-function itsValidSpace(chosenCoordinates, matrix) {
   const matrixSize = matrix.length;
-  if (
-    itsInsideTheBoard(chosenCoordinates, matrixSize) &&
-    itsBlankSpace(chosenCoordinates, matrix)
-  ) {
-    return true;
+
+  for (let lineIndex = 0; lineIndex < matrixSize; lineIndex += 1) {
+    for (let columnIndex = 0; columnIndex < matrixSize; columnIndex += 1) {
+      let cell = document.getElementById('cell' + ' ' + lineIndex + 'x' + columnIndex);
+      const coordinates = {
+        line: lineIndex,
+        column: columnIndex,
+      };
+
+      cell.addEventListener('click', onClick);
+
+      function onClick() {
+        if ((cell.classList.contains('blankSpace')) && (!isGameFinished)) {
+          turns.actual += 1;
+          putPieceOnBrowserAndVerifyIfGameIsFinished(playerSymbols, turns, coordinates);
+          board.printBoard(matrix, playerSymbols);
+          if (isGameFinished) {
+            makePlayAgainButtonAppear();
+          }
+        }
+      }
+    }
   }
-  console.log('Espaço invalido, escolha novamente');
-  return false;
 }
 
-function itsInsideTheBoard(chosenCoordinates, matrixSize) {
-  if (
-    itsValueIsBetweenZeroAndBoardSize(chosenCoordinates.line, matrixSize) &&
-    itsValueIsBetweenZeroAndBoardSize(chosenCoordinates.column, matrixSize)
-  ) {
-    return true;
+function makePlayAgainButtonAppear() {
+  document.getElementById('play-again-button').textContent = 'Jogar Novamente';
+  document.getElementById('play-again-button').classList.add('play-again');
+  document.getElementById('play-again-button').style.display = 'normal';
+}
+
+
+function putPieceOnBrowserAndVerifyIfGameIsFinished(playerSymbols, turns, coordinates) {
+
+  if (!(turns.actual % 2 === 0)) {
+    matrix = putPiece(playerSymbols.first, coordinates);
+    isGameFinished = verifyIfGameIsFinished(turns, matrix, playerSymbols.first);
   }
-  console.log('Espaço não está dentro do tabuleiro');
-  return false;
-}
-
-function itsValueIsBetweenZeroAndBoardSize(value, boardSize) {
-  return value > -1 && value < boardSize;
-}
-
-function itsBlankSpace(chosenCoordinates, matrix) {
-  if (
-    matrix[chosenCoordinates.line][chosenCoordinates.column] === CONSTANTS.BLANK
-  ) {
-    // bug se eu coloco 00 ou 01 por exemplo
-    return true;
+  else {
+    matrix = putPiece(playerSymbols.second, coordinates);
+    isGameFinished = verifyIfGameIsFinished(turns, matrix, playerSymbols.second);
   }
-  console.log('Espaço não está vazio');
-  return false;
+
 }
 
-function putPiece(playerSymbol, coordinates, matrix) {
+function putPiece(playerSymbol, coordinates) {
   const updatedMatrix = matrix;
   updatedMatrix[coordinates.line][coordinates.column] = playerSymbol;
   return updatedMatrix;
@@ -119,15 +83,10 @@ function verifyIfGameIsFinished(turns, matrix, symbol) {
 
 function colorWinningBar(turn) {
   let winningBar = document.getElementById('winningBar');
-  console.log(winningBar);
-  console.log('turn:', turn);
-  console.log(turn % 2);
   if (turn % 2 === 0) {
-    console.log('é par');
     winningBar.classList.add('secondPlayerWinningBar');
   }
   else {
-    console.log('nao é par');
     winningBar.classList.add('firstPlayerWinningBar');
   }
 }
@@ -379,27 +338,7 @@ function getBlankSpaceCoordinatesInTheReverseDiagonalAsString(matrix) {
   }
 }
 
-// testes abaixo pra nao usar o game.js
-
-// console.log('oi');
-
-// const matrix = board.createMatrix(3);
-// matrix[0][1] = 'x';
-// matrix[0][0] = 'x';
-// matrix[1][1] = 'y';
-// matrix[2][0] = 'y';
-// let playerSymbols = {
-//   first: 'x',
-//   second: 'y',
-// };
-// board.printBoard(matrix, playerSymbols);
-
-// const l = prompt();
-// const c = prompt();
-// matrix[l][c] = 'y';
-// board.printBoard(matrix, playerSymbols);
-
 export default {
-  runGame,
+  runGame: runGameOnBrowser,
   putPiece,
 }
