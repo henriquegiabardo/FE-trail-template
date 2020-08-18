@@ -1,18 +1,15 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import calculateWinner from './calculateWinner.js';
 
 
-class Board extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      squares: this.createMatrix(this.props.boardSize),
-      xIsNext: true,
-      winningCells: [],
-    };
-  }
+function Board(props) {
 
-  createMatrix(size) {
+  const [squares, setSquares] = useState(createMatrix(props.boardSize));
+  const [xIsNext, setXIsNext] = useState(true);
+  const [winningCells, setWinningCells] = useState([]);
+
+
+  function createMatrix(size) {
     const matrix = [];
     for (let i = 0; i < size; i += 1) {
       const line = [];
@@ -24,36 +21,30 @@ class Board extends React.Component {
     return matrix;
   }
 
-  render() {
-    if (this.props.resetBoard) {
-      this.resetBoard();
+  function placeThePieceAndAvanceTurn(i, j, symbol, squares) {
+    squares[i][j] = symbol;
+    setSquares(squares);
+    setXIsNext(!xIsNext);
+  }
+
+  function verifyIfPlayerHasWon(symbol, squares) {
+    let winningCells = calculateWinner.itsAVictory(squares, symbol);
+    if (winningCells) {
+      setWinningCells(winningCells);
+      return true;
     }
-    let matrixSize = this.state.squares.length;
-    return (
-      <Fragment>
-        {
-          this.state.squares.map(
-            (line, indexLine) => (
-              <div key={`line ${indexLine}`} className="line">
-                {line.map((cell, indexCell) =>
-                  this.renderSquare(indexLine, indexCell, matrixSize))}
-              </div>)
-          )
-        }
-      </Fragment>
-    );
+    return false;
   }
 
-  resetBoard() {
-    this.setState({
-      squares: this.createMatrix(this.props.boardSize),
-      xIsNext: true,
-      winningCells: [],
-    });
-    this.props.functionUpdateResetGameToFalse();
+  function resetBoard() {
+    setSquares(createMatrix(props.boardSize));
+    setXIsNext(true);
+    setWinningCells([]);
+
+    props.functionUpdateResetGameToFalse();
   }
 
-  renderSquare(i, j, matrixSize) {
+  function renderSquare(i, j, matrixSize) {
     return (
       <div
         key={`cell ${i} ${j}`}
@@ -63,63 +54,65 @@ class Board extends React.Component {
       ${i === matrixSize - 1 ? "border-bot" : ""}
       ${j === matrixSize - 1 ? "border-right" : ""}`}>
         <Square
-          isWinningCell={this.itsAWinningCell(i, j)}
-          value={this.state.squares[i][j]}
-          onClick={() => this.handleClickOnSquare(i, j)}
+          isWinningCell={itsAWinningCell(i, j)}
+          value={squares[i][j]}
+          onClick={() => handleClickOnSquare(i, j)}
         />
       </div>
     );
   }
 
-  itsAWinningCell(i, j) {
-    if (this.props.gameIsFinished) {
-      return this.state.winningCells.some(coordinates => coordinates[0] === i && coordinates[1] === j);
+  function itsAWinningCell(i, j) {
+    if (props.gameIsFinished) {
+      return winningCells.some(coordinates => coordinates[0] === i && coordinates[1] === j);
     }
   }
 
-  handleClickOnSquare(i, j) {
-    const squares = this.state.squares.slice();
+  function handleClickOnSquare(i, j) {
+    const squaresOnHandleClick = squares.slice();
 
     let nextSymbol;
-    if (this.state.xIsNext) {
+    if (xIsNext) {
       nextSymbol = 'X';
     }
     else {
       nextSymbol = 'O';
     }
 
-    if (this.props.gameIsFinished)
+    if (props.gameIsFinished)
       return;
-    if (this.squareIsAlreadyUsed(i, j, squares)) {
+    if (squareIsAlreadyUsed(i, j, squaresOnHandleClick)) {
       return;
     }
-    this.placeThePieceAndAvanceTurn(i, j, nextSymbol, squares);
-    if (this.verifyIfPlayerHasWon(nextSymbol, squares))
-      this.props.functionUpdateGameIsFinishedToTrue();
+    placeThePieceAndAvanceTurn(i, j, nextSymbol, squaresOnHandleClick);
+    if (verifyIfPlayerHasWon(nextSymbol, squaresOnHandleClick))
+      props.functionUpdateGameIsFinishedToTrue();
   }
 
-  squareIsAlreadyUsed(i, j, squares) {
+  function squareIsAlreadyUsed(i, j, squares) {
     return (squares[i][j]);
   }
 
-  placeThePieceAndAvanceTurn(i, j, symbol, squares) {
-    squares[i][j] = symbol;
-    this.setState({
-      squares: squares,
-      xIsNext: !this.state.xIsNext,
-    });
-  }
-
-  verifyIfPlayerHasWon(symbol, squares) {
-    let winningCells = calculateWinner.itsAVictory(squares, symbol);
-    if (winningCells) {
-      this.setState({
-        winningCells: winningCells,
-      });
-      return true;
+  useEffect(() => {
+    if (props.resetBoard) {
+      resetBoard();
     }
-    return false;
-  }
+  });
+
+  let matrixSize = squares.length;
+  return (
+    <Fragment>
+      {
+        squares.map(
+          (line, indexLine) => (
+            <div key={`line ${indexLine}`} className="line">
+              {line.map((cell, indexCell) =>
+                renderSquare(indexLine, indexCell, matrixSize))}
+            </div>)
+        )
+      }
+    </Fragment>
+  );
 }
 
 function Square(props) {

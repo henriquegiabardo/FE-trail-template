@@ -1,55 +1,46 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import Board from './board.js';
 
 
-class Game extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      gameIsFinished: false,
-      resetGame: false,
-      boardSize: 3,
-    };
+
+
+function Game() {
+
+  const [gameIsFinished, setGameIsFinished] = useState(false);
+  const [resetGame, setResetGame] = useState(false);
+  const [boardSize, setBoardSize] = useState(3);
+
+  function updateGameIsFinishedToTrue() {
+    setGameIsFinished(true);
   }
 
-  updateGameIsFinishedToTrue() {
-    this.setState({
-      gameIsFinished: true,
-    });
+  function replayButtonClick() {
+    setGameIsFinished(false);
+    setResetGame(true);
   }
 
-  replayButtonClick() {
-    this.setState({
-      gameIsFinished: false,
-      resetGame: true,
-    });
+  function updateResetGameToFalse() {
+    setResetGame(false);
   }
 
-  updateResetGameToFalse() {
-    this.setState({
-      resetGame: false,
-    });
-  }
-
-  render() {
-    return (
-      <Fragment>
-        <div className="board">
-          <Board
-            boardSize={this.state.boardSize}
-            resetBoard={this.state.resetGame}
-            gameIsFinished={this.state.gameIsFinished}
-            functionUpdateResetGameToFalse={() => this.updateResetGameToFalse()}
-            functionUpdateGameIsFinishedToTrue={() => this.updateGameIsFinishedToTrue()}
-          />
-        </div>
-        <ReplayButton
-          gameIsFinished={this.state.gameIsFinished}
-          onClick={() => this.replayButtonClick()}
+  return (
+    <Fragment>
+      <div className="board">
+        <Board
+          boardSize={boardSize}
+          resetBoard={resetGame}
+          gameIsFinished={gameIsFinished}
+          functionUpdateResetGameToFalse={() => updateResetGameToFalse()}
+          functionUpdateGameIsFinishedToTrue={() => updateGameIsFinishedToTrue()}
         />
-      </Fragment >
-    );
-  }
+      </div>
+      <ReplayButton
+        gameIsFinished={gameIsFinished}
+        onClick={() => replayButtonClick()}
+      />
+    </Fragment >
+  );
+
 }
 
 
